@@ -1,6 +1,7 @@
 # target
 Shell script for setting up and using nvme targets on linux
 
+```
   bmath@brick:~/src/target$ target connect 127.0.0.2
   found target-config.json
   connecting to 127.0.0.2
@@ -30,4 +31,4 @@ Shell script for setting up and using nvme targets on linux
   sectype: none
   bmath@brick:~/src/target$ ls -l /dev/nvme1
   crw------- 1 root root 246, 1 Feb  4 17:04 /dev/nvme1
-
+```
