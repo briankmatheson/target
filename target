@@ -13,7 +13,7 @@ backing_file=disk1      # sparse file to use (or create)
 backing_file_size=65536 # in MB
 
 usage(){
-    echo $0 "[start|connect|disconnect|stop]"
+    echo $0 "[start|connect ip.addr|disconnect|stop]"
 }
 
 losetup="sudo losetup"
