@@ -1,0 +1,43 @@
+cd /subsystems
+create disk1
+cd disk1
+set attr allow_any_host=1
+cd namespaces
+create nsid=1
+cd 1
+set device path=/dev/loop0
+enable
+
+cd /ports
+create 1
+cd 1
+set addr adrfam=ipv4
+set addr trtype=tcp
+set addr trsvcid=4420
+set addr traddr=127.0.0.2
+cd subsystems
+create
+
+
+
+cd /subsystems
+create loop
+cd loop
+set attr allow_any_host=1
+cd namespaces
+create nsid=1
+cd 1
+set device path=/dev/
+enable
+
+
+cd /ports
+create 1
+cd 1
+set addr adrfam=ipv4
+set addr trtype=tcp
+set addr trsvcid=4420
+set addr traddr=127.0.0.2
+cd subsystems
+create
+

@@ -12,23 +12,11 @@ config=target-config.json
 backing_file=disk1      # sparse file to use (or create)
 backing_file_size=65536 # in MB
 
-sudo losetup -f $backing_file
-if
-    [ "$?" = 0 ]; then
-    echo backing file at $backing_file
-    echo devices:
-    echo
-    sudo losetup -l
-else
-    echo problem with loop dev creation from $backing_file
-    if [ -e $backing_file ]; then
-	echo old backing file $backing_file?  Bailing out.
-	exit 1
-    fi
-    echo creating file at $backing_file
-    dd if=/dev/zero of=$backing_file count=1 bs=1M seek=$backing_file_size
-fi
+usage(){
+    echo $0 "[start|connect|disconnect|stop]"
+}
 
+losetup="sudo losetup"
 
 # /> cd subsystems
 # /subsystems> create nvme_subsystem
@@ -114,11 +102,45 @@ else
 EOF
 fi
 
-echo loading $config
-sudo nvmetcli restore $config
-sudo nvme discover -t tcp -a $ipaddrserver -s $app_port
-
-sudo nvme connect -t tcp -a $ipaddrserver -s $app_port -n $subnqn
-
-sudo nvme disconnect -n $subnqn
-sudo /usr/local/bin/nvmetcli clear
+case "$1" in
+    start)
+	echo adding loop dev to backing file 
+	$losetup -f $backing_file
+	if
+	    [ "$?" = 0 ]; then
+	    echo backing file at $backing_file
+	    echo devices:
+	    echo
+	    $losetup -l
+	else
+	    echo problem with loop dev creation from $backing_file
+	    if [ -e $backing_file ]; then
+		echo old backing file $backing_file?  Bailing out.
+		exit 1
+	    fi
+	    echo creating file at $backing_file
+	    dd if=/dev/zero of=$backing_file count=1 bs=1M seek=$backing_file_size
+	fi
+	echo loading $config
+	sudo nvmetcli restore $config
+	;;
+    connect)
+	IP="$2"
+	echo connecting to $IP
+	sudo nvme discover -t tcp -a $IP -s $app_port
+	sudo nvme connect -t tcp -a $IP -s $app_port -n $subnqn
+	;;
+    disconnect)
+	echo disconnecting
+	sudo nvme disconnect -n $subnqn
+	;;
+    stop)
+	echo disconnecting target and clearing loops
+	sudo /usr/local/bin/nvmetcli clear
+	$losetup -D
+	;;
+    *)
+	usage
+	exit
+	;;
+esac
